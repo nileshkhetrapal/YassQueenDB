@@ -43,6 +43,7 @@ class GraphDatabase:
 
 
 def serve_main_node(graph_db, host, port):
+    print("Serving main node at", host, port)
     server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server.bind((host, port))
     server.listen(5)
