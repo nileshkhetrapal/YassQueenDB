@@ -90,8 +90,8 @@ def update_follower_node(graph_db, host, port):
 def check_main_node_availability(host, port, timeout=3):
     try:
         client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        client.settimeout(timeout)
         client.connect((host, port))
+        client.send("GET_MAIN_NODE_IP".encode('utf-8'))
         client.close()
         return True
     except socket.error:
