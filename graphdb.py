@@ -6,6 +6,7 @@ from time import sleep
 class GraphDatabase:
     def __init__(self):
         self.graph = {}
+        self.text_pieces = []
 
     def add_node(self, node):
         if node not in self.graph:
@@ -29,6 +30,17 @@ class GraphDatabase:
 
     def update_from_main(self, new_graph):
         self.graph = new_graph
+    
+    def store_text_piece(self, text):
+        self.text_pieces.append(text)
+
+    def get_all_text_pieces(self):
+        return self.text_pieces
+
+    def update_from_main(self, new_graph, new_text_pieces):
+        self.graph = new_graph
+        self.text_pieces = new_text_pieces
+
 
 def serve_main_node(graph_db, host, port):
     server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -40,7 +52,13 @@ def serve_main_node(graph_db, host, port):
         request = conn.recv(1024).decode('utf-8')
         response = ""
 
-        if request == "GET_GRAPH":
+        if request.startswith("STORE_TEXT:"):
+            text = request[len("STORE_TEXT:"):]
+            graph_db.store_text_piece(text)
+            response = "TEXT_STORED"
+        elif request == "GET_TEXT_PIECES":
+            response = json.dumps(graph_db.get_all_text_pieces())
+        elif request == "GET_GRAPH":
             response = json.dumps(graph_db.graph)
         else:
             print("Unknown request:", request)
@@ -50,15 +68,17 @@ def serve_main_node(graph_db, host, port):
 
 def update_follower_node(graph_db, host, port):
     while True:
-        sleep(60)
+        sleep(5)
 
         client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         client.connect((host, port))
-        client.send("GET_GRAPH".encode('utf-8'))
+        client.send("GET_GRAPH_AND_TEXT_PIECES".encode('utf-8'))
 
         response = client.recv(1024).decode('utf-8')
-        new_graph = json.loads(response)
-        graph_db.update_from_main(new_graph)
+        new_data = json.loads(response)
+        new_graph = new_data["graph"]
+        new_text_pieces = new_data["text_pieces"]
+        graph_db.update_from_main(new_graph, new_text_pieces)
 
         client.close()
 
