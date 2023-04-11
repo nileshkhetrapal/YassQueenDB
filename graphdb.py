@@ -72,7 +72,7 @@ def update_follower_node(graph_db, host, port):
 
         client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         client.connect((host, port))
-        client.send("GET_GRAPH_AND_TEXT_PIECES".encode('utf-8'))
+        client.send("GET_TEXT_PIECES".encode('utf-8'))
 
         response = client.recv(1024).decode('utf-8')
         new_data = json.loads(response)
@@ -95,9 +95,30 @@ def check_main_node_availability(host, port, timeout=3):
 def switchover_main_node(graph_db, host, port):
     while True:
         sleep(10)
-        if not check_main_node_availability(host, port):
+        main_node_ip = get_main_node_ip(host, port)
+        if main_node_ip is None:
             print("Main node not available, switching to main node")
             serve_main_node(graph_db, host, port)
+
+def get_main_node_ip(host, port, timeout=3):
+    follower_nodes = [follower_node1_ip, follower_node2_ip]
+    for node_ip in follower_nodes:
+        if node_ip != host:
+            try:
+                client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                client.settimeout(timeout)
+                client.connect((node_ip, port))
+                client.send("GET_MAIN_NODE_IP".encode('utf-8'))
+
+                response = client.recv(1024).decode('utf-8')
+                main_node_ip = response.strip()
+                client.close()
+
+                return main_node_ip
+            except socket.error:
+                pass
+
+    return None
 
 def main():
     main_node_ip = "10.0.5.201"
