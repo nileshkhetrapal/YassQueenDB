@@ -77,7 +77,7 @@ def update_follower_node(graph_db, host, port):
 
         client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         client.connect((host, port))
-        client.send("GET_TEXT_PIECES".encode('utf-8'))
+        client.send("GET_GRAPH_AND_TEXT_PIECES".encode('utf-8'))
 
         response = client.recv(1024).decode('utf-8')
         new_data = json.loads(response)
