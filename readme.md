@@ -46,3 +46,7 @@ To create a new vector database from two documents (doc1.txt and doc2.txt) and s
 To search for the nearest neighbor of the query "What is the meaning of life?" in the `my_database.csv`:
 
 `python YassQueenDB.py search my_database.csv --query "What is the mea`
+
+
+
+YassQueen Graph DB (yqgdb) is a lightweight, flexible, and easy-to-use sentence-based vector database that utilizes TensorFlow Keras embeddings and a custom graph data structure to enable semantic querying, updating, and deleting of entries. With yqgdb, you can perform natural language processing tasks such as searching for similar sentences, organizing text data, and more.
