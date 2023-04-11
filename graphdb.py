@@ -55,8 +55,8 @@ def serve_main_node(graph_db, host, port):
 
         if request.startswith("STORE_TEXT:"):
             text = request[len("STORE_TEXT:"):]
-            graph_db.store_text_piece(text)
-            response = "TEXT_STORED"
+            node_id = graph_db.store_text_piece(text)
+            response = f"TEXT_STORED:{node_id}"
         elif request == "GET_TEXT_PIECES":
             response = json.dumps(graph_db.get_all_text_pieces())
         elif request == "GET_GRAPH":
@@ -156,4 +156,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
