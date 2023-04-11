@@ -61,6 +61,10 @@ def serve_main_node(graph_db, host, port):
             response = json.dumps(graph_db.get_all_text_pieces())
         elif request == "GET_GRAPH":
             response = json.dumps(graph_db.graph)
+        elif request == "GET_MAIN_NODE_IP":
+            response = host
+        elif request == "GET_GRAPH_AND_TEXT_PIECES":
+            response = json.dumps({"graph": graph_db.graph, "text_pieces": graph_db.get_all_text_pieces()})
         else:
             print("Unknown request:", request)
 
@@ -102,7 +106,7 @@ def switchover_main_node(graph_db, host, port):
             serve_main_node(graph_db, host, port)
 
 def get_main_node_ip(host, port, timeout=3):
-    follower_nodes = [follower_node1_ip, follower_node2_ip]
+    follower_nodes = ["10.0.5.202", "10.0.5.203"]
     for node_ip in follower_nodes:
         if node_ip != host:
             try:
