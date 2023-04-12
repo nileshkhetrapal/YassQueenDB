@@ -74,3 +74,6 @@ graph_db.show_graph()
 results = graph_db.semantic_search("A sample sentence to search for.", top_k=1)
 print(f"Semantic search results: {results}")
 ```
+
+Wanna see it in action? \n
+https://colab.research.google.com/drive/13zRVd2zjxvyF0ZVQWS-hTSaFDNN8eyMH?usp=sharing
