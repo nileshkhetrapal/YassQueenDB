@@ -1,50 +1,76 @@
 # YassQueenDB
 
-YassQueenDB is a Python-based program designed to create and manage a vector database for sentences. It allows users to create a database, update it with new sentences, search for the nearest neighbor of a given vector, and delete vectors from the database. The database is stored as a CSV file in the same directory as the current working directory.
+YassQueenDB is a simple graph database for storing and searching semantically related data. It is built using Python and leverages NetworkX, TensorFlow, and the Universal Sentence Encoder for generating node embeddings and performing semantic search.
 
 ## Features
 
-* Create a vector database from a set of documents
-* Add vectors to the database
-* Query the database for the nearest neighbor of a given vector
-* Delete vectors from the database
+YassQueenDB provides the following functionalities:
 
-## Dependencies
+* Creating and managing multiple graph instances
+* Adding nodes and edges (relationships) to a graph
+* Generating embeddings for nodes using the Universal Sentence Encoder
+* Searching for semantically related nodes based on a query
+* Deleting nodes from a graph
+* Saving and loading graphs to/from a file
+* Laplacian Eigenmaps dimensionality reduction
+* Showing graph structure and properties
 
-* numpy
-* pandas
-* textract
-* tensorflow
-* tensorflow_hub
+Please refer to the inline comments in the code for more details on each method.
+
+## Installation
+
+Before using YassQueenDB, please ensure that you have the following Python packages installed:
+
+* `networkx`
+* `numpy`
+* `scipy`
+* `tensorflow`
+* `tensorflow_hub`
+
+You can install these packages using `pip`:
+
+```bash
+pip install networkx numpy scipy tensorflow tensorflow_hub
+```
 
 ## Usage
 
-YassQueenDB is a command-line based program. Run the program with the following commands:
+To use YassQueenDB, simply import the `GraphDatabase` class:
 
-1. **Create** a vector database:
+```python
+from YassQueenDB import GraphDatabase
+```
 
-`python YassQueenDB.py create <tablename> --documents <document1> <document2> ...`
+Here's a quick example to get you started:
 
-2. **Update** the vector database with new documents:
+```python
+# Instantiate the graph database
+graph_db = GraphDatabase()
 
-`python YassQueenDB.py update <tablename> --documents <document1> <document2> ...`
 
-3. **Search** the vector database for the nearest neighbor of a given query:
+# Load sentence encoder
 
-`python YassQueenDB.py search <tablename> --query "Your query here"`
+graph_db.load_sentence_encoder()
 
-4. **Delete** the vector from the database that is closest to the given query:
+# Create a graph
 
-`python YassQueenDB.py delete <tablename> --query "Your query here"`
+graph_db.create_graph("my_graph")
 
-## Example
+# Add nodes with data
 
-To create a new vector database from two documents (doc1.txt and doc2.txt) and store it in a file called `my_database.csv`:
+node_A = graph_db.add_node("This is a sample sentence for node A.")
+node_B = graph_db.add_node("This is another sample sentence for node B.")
 
-`python YassQueenDB.py create my_database.csv --documents doc1.txt doc2.txt`
+# Add relationship
 
-To search for the nearest neighbor of the query "What is the meaning of life?" in the `my_database.csv`:
+graph_db.add_edge(node_A, node_B, "related")
 
-`python YassQueenDB.py search my_database.csv --query "What is the mea`
+# Show graph
 
-YassQueen Graph DB (yqgdb) is a lightweight, flexible, and easy-to-use sentence-based vector database that utilizes TensorFlow Keras embeddings and a custom graph data structure to enable semantic querying, updating, and deleting of entries. With yqgdb, you can perform natural language processing tasks such as searching for similar sentences, organizing text data, and more.
+graph_db.show_graph()
+
+# Semantic search
+
+results = graph_db.semantic_search("A sample sentence to search for.", top_k=1)
+print(f"Semantic search results: {results}")
+```
