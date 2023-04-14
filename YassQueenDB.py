@@ -5,6 +5,7 @@ from scipy.spatial.distance import cosine
 import tensorflow as tf
 import tensorflow_hub as hub
 import os
+import pickle
 
 class GraphDatabase:
     def __init__(self):
