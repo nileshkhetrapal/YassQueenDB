@@ -1,5 +1,7 @@
 # YassQueenDB
 
+!This readme is written by ChatGPT!
+
 YassQueenDB is a simple graph database for storing and searching semantically related data. It is built using Python and leverages NetworkX, TensorFlow, and the Universal Sentence Encoder for generating node embeddings and performing semantic search.
 
 In a graph, nodes are connected by edges, and each node can have any number of edges. A vector can be stored as a node in the graph, and the components of the vector can be represented as edge weights connecting the node to other nodes. Since a graph is a flexible data structure, it can store vectors of any length without the need to define a dimension for the data in advance. This is in contrast to tables where the number of columns needs to be predefined, and adding a new vector with a different number of components requires modifying the table's structure.
