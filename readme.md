@@ -1,85 +1,90 @@
-# YassQueenDB
+# YassQueenDB 💁‍♀️👑🔍
 
 !This readme is written by ChatGPT!
 
-YassQueenDB is a simple graph database for storing and searching semantically related data. It is built using Python and leverages NetworkX, TensorFlow, and the Universal Sentence Encoder for generating node embeddings and performing semantic search.
+YassQueenDB is a graph database library that allows you to store, analyze, and search through your data in a graph format. By using the Universal Sentence Encoder, it provides an efficient and semantic approach to handle text data. 📚🧠🚀
 
-In a graph, nodes are connected by edges, and each node can have any number of edges. A vector can be stored as a node in the graph, and the components of the vector can be represented as edge weights connecting the node to other nodes. Since a graph is a flexible data structure, it can store vectors of any length without the need to define a dimension for the data in advance. This is in contrast to tables where the number of columns needs to be predefined, and adding a new vector with a different number of components requires modifying the table's structure.
+## Benefits 😍
 
-Using a graph to store and query vectors also enables efficient similarity searches by computing the cosine similarity between the embeddings of two nodes. Instead of performing a brute-force similarity search, a graph-based approach uses graph traversal algorithms that can be more efficient in searching for similar vectors.
+1. Semantic understanding of text data 📖
+2. Efficient handling of relationships between data 💼
+3. Easy-to-use graph manipulation functions 🛠️
+4. Text summarization capabilities 📝
+5. Keyword extraction for easy indexing and searching 🔎
+6. Flexible graph creation and management 🌐
 
-## Features
+## Drawbacks 😔
 
-YassQueenDB provides the following functionalities:
+1. Requires downloading and loading the Universal Sentence Encoder model 📥
+2. Limited to text data only 🚫
+3. Might be slow for very large datasets 🐌
 
-* Creating and managing multiple graph instances
-* Adding nodes and edges (relationships) to a graph
-* Generating embeddings for nodes using the Universal Sentence Encoder
-* Searching for semantically related nodes based on a query
-* Deleting nodes from a graph
-* Saving and loading graphs to/from a file
-* Laplacian Eigenmaps dimensionality reduction
-* Showing graph structure and properties
+## Features 🌟
 
-Please refer to the inline comments in the code for more details on each method.
+### Graph Management 🗂️
 
-## Installation
+* Create, select, and delete graphs 📁
+* Add and delete nodes 📌
+* Add and delete edges ↔️
 
-Before using YassQueenDB, please ensure that you have the following Python packages installed:
+### Text Analysis 📖
 
-* `networkx`
-* `numpy`
-* `scipy`
-* `tensorflow`
-* `tensorflow_hub`
+* Semantic search for nodes 🧐
+* Summarize sections and paragraphs 📝
+* Split paragraphs into sentences and create nodes from them 📚
 
-You can install these packages using `pip`:
+### Data Manipulation 🧩
 
-```bash
-pip install networkx numpy scipy tensorflow tensorflow_hub
-```
+* Generate embeddings for text data 🔍
+* Extract keywords from input data 🏷️
+* Laplacian eigenmaps for dimensionality reduction 📉
+* Save and load graphs to/from files 💾
 
-## Usage
-
-To use YassQueenDB, simply import the `GraphDatabase` class:
-
-```python
-from YassQueenDB import GraphDatabase
-```
-
-Here's a quick example to get you started:
+## Usage 🛠️
 
 ```python
-# Instantiate the graph database
-graph_db = GraphDatabase()
+from yassqueendb import GraphDatabase
 
+#Create a YassQueenDB instance
 
-# Load sentence encoder
+db = GraphDatabase()
 
-graph_db.load_sentence_encoder()
+# Load the sentence encoder
+
+db.load_sentence_encoder()
 
 # Create a graph
 
-graph_db.create_graph("my_graph")
+db.create_graph('example_graph')
 
-# Add nodes with data
+# Add a node
 
-node_A = graph_db.add_node("This is a sample sentence for node A.")
-node_B = graph_db.add_node("This is another sample sentence for node B.")
+db.add_node('This is a sample sentence.')
 
-# Add relationship
+# Add an edge between nodes
 
-graph_db.add_edge(node_A, node_B, "related")
+db.add_edge('node1', 'node2', 'relationship_name')
 
-# Show graph
+# Search for a node
 
-graph_db.show_graph()
+db.search_node('node1')
 
-# Semantic search
+# Show the graph
 
-results = graph_db.semantic_search("A sample sentence to search for.", top_k=1)
-print(f"Semantic search results: {results}")
+db.show_graph()
+
+# Save the graph to a file
+
+db.save_graph_to_file('example_graph.pickle')
+
+# Load the graph from a file
+
+db.load_graph_from_file('example_graph.pickle')
+
+# Summarize a section of text
+
+section = "This is a section of text. It has multiple paragraphs."
+section_summary = db.summarize_section(section)`
 ```
 
-## Wanna see it in action?
-https://colab.research.google.com/drive/13zRVd2zjxvyF0ZVQWS-hTSaFDNN8eyMH?usp=sharing
+Get started with YassQueenDB and unleash the power of semantic graph databases! 🎉💃🕺
