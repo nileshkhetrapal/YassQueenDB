@@ -17,7 +17,7 @@ YassQueenDB is a graph database library that allows you to store, analyze, and s
 
 1. Requires downloading and loading the Universal Sentence Encoder model 📥
 2. Limited to text data only 🚫
-3. Might be slow for very large datasets 🐌
+3. Might be slow for very large datasets based on your system resources 🐌
 
 ## Features 🌟
 
