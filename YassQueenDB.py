@@ -285,3 +285,16 @@ class GraphDatabase:
         section_summary = paragraph_summaries
 
         return section_summary
+     def pca_analysis(self, n_components):
+        if self.current_graph is not None:
+            # Retrieve the Laplacian Eigenmaps of the graph
+            laplacian_eigenmaps = self.laplacian_eigenmaps()
+
+            # Perform PCA on the Laplacian Eigenmaps
+            pca = PCA(n_components=n_components)
+            principal_components = pca.fit_transform(laplacian_eigenmaps)
+
+            return principal_components
+        else:
+            print("No graph selected. Please create or select a graph first.")
+            return None
