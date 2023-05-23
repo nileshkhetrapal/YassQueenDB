@@ -5,6 +5,7 @@ from scipy.spatial.distance import cosine
 import tensorflow as tf
 import tensorflow_hub as hub
 import os
+import pickle
 
 class GraphDatabase:
     def __init__(self):
@@ -42,29 +43,30 @@ class GraphDatabase:
             print("Sentence encoder not loaded. Please load it first.")
             return None
 
-    def add_node(self, data, relationship=None, to_node=None):
-        # Use ALFG to generate a random number for the node name
-        seed = np.random.randint(0, 1000)
-        rand = np.random.default_rng(seed=seed)
-        node_name = str(rand.integers(1, 1_000_000))
+    def add_node(self, data, additional_data=None, relationship=None, to_node=None):
+        # Extract keywords from the data
+        keywords = self.extract_keywords(data)
+
+        # Generate the node_id based on the extracted keywords
+        node_id = "_".join(keywords)
 
         if self.current_graph is not None:
-            if node_name not in self.current_graph.nodes:
+            if node_id not in self.current_graph.nodes:
                 # Generate an embedding for the node
                 embedding = self.generate_embedding(data)
 
-                # Add the node with the embedding and data as properties
-                self.current_graph.add_node(node_name, embedding=embedding, data=data)
-                print(f"Node '{node_name}' added to the graph.")
+                # Add the node with the embedding, data, and additional_data as properties
+                self.current_graph.add_node(node_id, embedding=embedding, data=data, additional_data=additional_data)
+                print(f"Node '{node_id}' added to the graph.")
 
                 # If relationship and to_node are provided, add an edge
                 if relationship is not None and to_node is not None:
-                    self.add_edge(node_name, to_node, relationship)
+                    self.add_edge(node_id, to_node, relationship)
             else:
-                print(f"Node '{node_name}' already exists in the graph.")
+                print(f"Node '{node_id}' already exists in the graph.")
         else:
             print("No graph selected. Please create or select a graph first.")
-        return node_name
+        return node_id
 
     def create_graph(self, graph_name):
         self.graphs[graph_name] = nx.DiGraph()
@@ -176,3 +178,123 @@ class GraphDatabase:
             print(f"File '{file_path}' not found.")
         except Exception as e:
             print(f"Error loading graph from '{file_path}': {e}")
+
+    def summarize_sentences(self, sentences, top_k=1):
+        if self.current_graph is not None and self.encoder is not None:
+            sentence_embeddings = self.encoder(sentences)
+            avg_embedding = np.mean(sentence_embeddings, axis=0)
+            distances = [cosine(avg_embedding, embedding) for embedding in sentence_embeddings]
+            sorted_indices = np.argsort(distances)[:top_k]
+
+            return [sentences[i] for i in sorted_indices]
+        else:
+            print("No graph selected or sentence encoder not loaded. Please create/select a graph and load the encoder first.")
+            return []
+
+    def split_paragraph(self, paragraph):
+        sentences = re.split(r'(?<=\.)\s', paragraph)
+        return sentences
+
+    def create_nodes_from_paragraph(self, paragraph, paragraph_index):
+        sentences = self.split_paragraph(paragraph)
+        node_ids = []
+
+        for sentence in sentences:
+            node_id = self.add_node(sentence)
+            node_ids.append(node_id)
+
+            # Store the paragraph index as an attribute of the node
+            self.current_graph.nodes[node_id]['paragraph_index'] = paragraph_index
+
+        return node_ids
+
+    def query_nodes_by_paragraph_index(self, paragraph_index):
+        if self.current_graph is not None:
+            nodes = [node for node, data in self.current_graph.nodes(data=True) if data.get('paragraph_index') == paragraph_index]
+            return nodes
+        else:
+            print("No graph selected. Please create or select a graph first.")
+            return []
+
+    def create_nodes_from_paragraph(self, paragraph, paragraph_index):
+        sentences = self.split_paragraph(paragraph)
+        node_ids = []
+        prev_node_id = None
+
+        for sentence in sentences:
+            node_id = self.add_node(sentence)
+            node_ids.append(node_id)
+
+            # Store the paragraph index as an attribute of the node
+            self.current_graph.nodes[node_id]['paragraph_index'] = paragraph_index
+
+            # Create edges between sentences
+            if prev_node_id is not None:
+                self.add_edge(prev_node_id, node_id, 'predecessor_of')
+                self.add_edge(node_id, prev_node_id, 'successor_of')
+
+            prev_node_id = node_id
+
+        return node_ids
+
+    def extract_keywords(self, input_data, num_keywords=2):
+        if isinstance(input_data, str):
+            # If the input is a sentence, generate its embedding
+            sentence_embedding = self.generate_embedding(input_data)
+        elif self.current_graph is not None and input_data in self.current_graph.nodes:
+            # If the input is a node_id, get the stored embedding
+            sentence_embedding = self.current_graph.nodes[input_data]['embedding']
+        else:
+            print("Invalid input. Please provide a valid sentence or node_id.")
+            return []
+
+        # Split the sentence into words and remove punctuation
+        words = re.findall(r'\w+', input_data)
+
+        # Generate word embeddings
+        word_embeddings = self.encoder(words).numpy()
+
+        # Calculate cosine distances between the sentence embedding and word embeddings
+        distances = [cosine(sentence_embedding, word_embedding) for word_embedding in word_embeddings]
+
+        # Get the indices of the smallest distances (most representative words)
+        top_indices = np.argsort(distances)[:num_keywords]
+
+        # Return the most representative words as keywords
+        keywords = [words[i] for i in top_indices]
+        return keywords
+
+    def summarize_section(self, section, top_k=1):
+        paragraphs = section.split('\n')
+
+        paragraph_summaries = []
+        for index, paragraph in enumerate(paragraphs):
+            if paragraph.strip():  # To avoid empty lines
+                node_ids = self.create_nodes_from_paragraph(paragraph, index)
+
+                # Get the sentences in the paragraph
+                sentences = [self.current_graph.nodes[node_id]['data'] for node_id in node_ids]
+
+                # Summarize the paragraph
+                summary = self.summarize_sentences(sentences, top_k=top_k)
+
+                # Append the summary to the list of paragraph summaries
+                paragraph_summaries.append(summary)
+
+        # Combine the paragraph summaries to create the section summary
+        section_summary = paragraph_summaries
+
+        return section_summary
+     def pca_analysis(self, n_components):
+        if self.current_graph is not None:
+            # Retrieve the Laplacian Eigenmaps of the graph
+            laplacian_eigenmaps = self.laplacian_eigenmaps()
+
+            # Perform PCA on the Laplacian Eigenmaps
+            pca = PCA(n_components=n_components)
+            principal_components = pca.fit_transform(laplacian_eigenmaps)
+
+            return principal_components
+        else:
+            print("No graph selected. Please create or select a graph first.")
+            return None
