@@ -1,4 +1,4 @@
-import networkx as nx
+import networkx as nx 
 import numpy as np
 from scipy.sparse.linalg import eigsh
 from scipy.spatial.distance import cosine
@@ -6,6 +6,7 @@ import tensorflow as tf
 import tensorflow_hub as hub
 import os
 import pickle
+import re
 
 class GraphDatabase:
     def __init__(self):
@@ -285,7 +286,7 @@ class GraphDatabase:
         section_summary = paragraph_summaries
 
         return section_summary
-     def pca_analysis(self, n_components):
+    def pca_analysis(self, n_components):
         if self.current_graph is not None:
             # Retrieve the Laplacian Eigenmaps of the graph
             laplacian_eigenmaps = self.laplacian_eigenmaps()
